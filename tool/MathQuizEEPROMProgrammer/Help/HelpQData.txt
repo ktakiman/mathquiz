@@ -1,0 +1,43 @@
+### Question data file format ###
+
+Hint:
+ 1. Blank line is ignored
+ 2. text after '#' on a line is ignored
+ 3. Load sample and see how it's done.
+ 4. The answer is computed by the MCU. 
+ 5. Leave spce between the number and operand
+ 6. Up to 4 digits. The answer should also be within 4 digits.
+ 7. Load sample to see the full example
+ 8. Make sure to include the exact number of questions inferred from
+    the number of stages and number of questions in a stage
+    
+--------------------------------------------------------------
+Format:
+--------------------------------------------------------------
+[number of stages]
+[number of questions per stage]
+
+[first number] [operand] [second number]
+[first number] [operand] [second number]
+...
+
+--------------------------------------------------------------
+Example:
+--------------------------------------------------------------
+2    # number of stages
+5    # number of questions in a stage
+
+#stage 1
+129 + 333
+20 - 12
+3 * 5
+10 / 2
+40 - 9
+
+#stage 2
+20 - 8
+24 - 5
+50 - 30
+43 - 8
+80 - 11
+73 - 18

@@ -1,0 +1,9 @@
+#visual studio (https://github.com/github/gitignore/blob/master/VisualStudio.gitignore)
+
+*.suo
+*.user
+
+[Bb]in/[Dd]ebug/
+[Bb]in/[Rr]elease/
+[Oo]bj/
+.vs/
