@@ -190,14 +190,33 @@ void initAnswerBuf()
 void updateAnswerBuf()
 {
     uint8_t newChar;
-    switch (gBufAnswer[INPUT_INDENT + gCursorPos])
+    uint8_t curChar = gBufAnswer[INPUT_INDENT + gCursorPos];
+    switch (curChar)
     {
         case ' ': newChar = '0'; break;
-        case '9': newChar = gCursorPos == 0 ?  '0' : ' '; break;
-        default: newChar = gBufAnswer[INPUT_INDENT + gCursorPos] + 1; break;
+        case '9': newChar = gCursorPos == 0 ? '0' : ' '; break;
+        default: newChar = curChar + 1; break;
     }
     
     gBufAnswer[INPUT_INDENT + gCursorPos] = newChar;
+}
+// ----------------------------------------------------------------------------
+void updateAnswerBufReverse()
+{
+
+    if (gCursorPos != INPUT_OK_CURSOR_POS)
+    {
+        uint8_t newChar;
+        uint8_t curChar = gBufAnswer[INPUT_INDENT + gCursorPos]; 
+        switch (curChar)
+        {
+            case ' ': newChar = '9'; break;
+            case '0': newChar = gCursorPos == 0 ? '9' : ' '; break;
+            default: newChar = curChar - 1; break; 
+        }
+
+        gBufAnswer[INPUT_INDENT + gCursorPos] = newChar;
+    }
 }
 // ----------------------------------------------------------------------------
 void updateCursorBuf(uint8_t shift)
@@ -776,10 +795,8 @@ int main(void) {
         }
         if (gBtn3Clicked)
         {
-            if (gStage > 1)
-            {
-                playTune(2 + gStage / 2);
-            }
+            updateAnswerBufReverse();
+            _pcd8544_setText(LINE_ANSWER, gBufAnswer, 1);
 
             gBtn3Clicked = 0;
         }

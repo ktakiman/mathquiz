@@ -12,7 +12,7 @@ rem attiny4313
 rem atmega8
 rem atmega88p
 
-SET mcugcc=atmega88p
+SET mcugcc=atmega328p
 
 rem t13
 rem t84
@@ -20,8 +20,9 @@ rem t85
 rem t4313  
 rem m8
 rem m88p
+rem m328p
 
-SET mcuavr=m88p
+SET mcuavr=m328p
 
 
 SET clock=8000000
@@ -48,7 +49,7 @@ avr-objdump -d %proj%.elf > %proj%.asm
 @echo #### Build succeeded !!! ###
 @echo.
 
-avrdude -c avrisp -p %mcuavr% -P com3 -b 19200 -U flash:w:%proj%.hex -C %avrdudeconfpath%
+avrdude -c avrisp -p %mcuavr% -P com4 -b 19200 -U flash:w:%proj%.hex -C %avrdudeconfpath%
 @IF ERRORLEVEL 1 GOTO flashErrorHandling
 
 @GOTO end
