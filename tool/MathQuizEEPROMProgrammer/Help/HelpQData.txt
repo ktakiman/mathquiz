@@ -4,8 +4,8 @@ Hint:
  1. Blank line is ignored
  2. text after '#' on a line is ignored
  3. Load sample and see how it's done.
- 4. The answer is computed by the MCU. 
- 5. Leave spce between the number and operand
+ 4. The answer for the question is computed by the MCU. No need to enter.
+ 5. Leave sapce between the number and operand
  6. Up to 4 digits. The answer should also be within 4 digits.
  7. Load sample to see the full example
  8. Make sure to include the exact number of questions inferred from

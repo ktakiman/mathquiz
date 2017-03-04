@@ -13,9 +13,11 @@ namespace MathQuizEEPROMWriter
 {
     public partial class MainForm : Form
     {
+        private const string _sampleUsDataFilepath = "Sample Data/SampleUserData.txt";
         private const string _sampleQDataFilepath = "Sample Data/SampleQuestionData.txt";
         private const string _sampleSdDataFilepath = "Sample Data/SampleSoundData.txt";
 
+        private const string _helpUsDataFilepath = "Help/HelpUsData.txt";
         private const string _helpQDataFilepath = "Help/HelpQData.txt";
         private const string _helpSdDataFilepath = "Help/HelpSdData.txt";
         private const string _helpEEPROMDataFilepath = "Help/HelpEEPROM.txt";
@@ -43,9 +45,21 @@ namespace MathQuizEEPROMWriter
 
         private void timerTick(object sender, EventArgs e)
         {
-            btnGenerateEEPROMData.Enabled = tbQData.TextLength > 0 && tbSdData.TextLength > 0 && tbSecretKey.TextLength > 0;
+            btnGenerateEEPROMData.Enabled = tbUsData.TextLength > 0 && tbQData.TextLength > 0 && tbSdData.TextLength > 0;
 
             btnSaveEEPROMDataAsBinary.Enabled = btnProgoramEEPROM.Enabled = _eepromData?.Count > 0;
+        }
+
+        private void OnClickUsDataButton(object sender, EventArgs e)
+        {
+            if (sender == btnUsDataLoadSample)
+            {
+                tbUsData.Text = File.ReadAllText(_sampleUsDataFilepath);
+            }
+            else if (sender == btnUsDataHelp)
+            {
+                new HelpDialog(File.ReadAllText(_helpUsDataFilepath)).ShowDialog();
+            }
         }
 
         private void OnClickQDataButton(object sender, EventArgs e)
@@ -122,7 +136,7 @@ namespace MathQuizEEPROMWriter
 
         private void OnClickGenerateEEPROMData(object sender, EventArgs e)
         {
-            _eepromData = MainSerializer.Serialize(tbQData.Text, tbSdData.Text, tbSecretKey.Text);
+            _eepromData = MainSerializer.Serialize(tbUsData.Text, tbQData.Text, tbSdData.Text);
 
             tbEEPROMData.Text = formatMemory(0, _eepromData, _eepromData.Count);
         }

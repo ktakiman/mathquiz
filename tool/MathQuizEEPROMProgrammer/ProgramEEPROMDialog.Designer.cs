@@ -34,14 +34,12 @@
             this.panel7 = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
             this.panel6 = new System.Windows.Forms.Panel();
-            this.lblCheck = new System.Windows.Forms.Label();
-            this.lblVerify = new System.Windows.Forms.Label();
-            this.lblCheckResult = new System.Windows.Forms.Label();
-            this.lblWrite = new System.Windows.Forms.Label();
-            this.lblReadResult = new System.Windows.Forms.Label();
-            this.lblRead = new System.Windows.Forms.Label();
-            this.lblWriteResult = new System.Windows.Forms.Label();
-            this.lblVerifyResult = new System.Windows.Forms.Label();
+            this.lblStep1 = new System.Windows.Forms.Label();
+            this.lblStatus1 = new System.Windows.Forms.Label();
+            this.lblStep3 = new System.Windows.Forms.Label();
+            this.lblStatus2 = new System.Windows.Forms.Label();
+            this.lblStep2 = new System.Windows.Forms.Label();
+            this.lblStatus3 = new System.Windows.Forms.Label();
             this.btnWrite = new System.Windows.Forms.Button();
             this.btnRead = new System.Windows.Forms.Button();
             this.btnCheck = new System.Windows.Forms.Button();
@@ -120,98 +118,76 @@
             // panel6
             // 
             this.panel6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel6.Controls.Add(this.lblCheck);
-            this.panel6.Controls.Add(this.lblVerify);
-            this.panel6.Controls.Add(this.lblCheckResult);
-            this.panel6.Controls.Add(this.lblWrite);
-            this.panel6.Controls.Add(this.lblReadResult);
-            this.panel6.Controls.Add(this.lblRead);
-            this.panel6.Controls.Add(this.lblWriteResult);
-            this.panel6.Controls.Add(this.lblVerifyResult);
+            this.panel6.Controls.Add(this.lblStep1);
+            this.panel6.Controls.Add(this.lblStatus1);
+            this.panel6.Controls.Add(this.lblStep3);
+            this.panel6.Controls.Add(this.lblStatus2);
+            this.panel6.Controls.Add(this.lblStep2);
+            this.panel6.Controls.Add(this.lblStatus3);
             this.panel6.Location = new System.Drawing.Point(99, 49);
             this.panel6.Name = "panel6";
             this.panel6.Size = new System.Drawing.Size(338, 118);
             this.panel6.TabIndex = 12;
             // 
-            // lblCheck
+            // lblStep1
             // 
-            this.lblCheck.AutoSize = true;
-            this.lblCheck.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCheck.Location = new System.Drawing.Point(40, 11);
-            this.lblCheck.Name = "lblCheck";
-            this.lblCheck.Size = new System.Drawing.Size(208, 13);
-            this.lblCheck.TabIndex = 11;
-            this.lblCheck.Text = "Connected to EEPROM programmer";
+            this.lblStep1.AutoSize = true;
+            this.lblStep1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblStep1.Location = new System.Drawing.Point(40, 11);
+            this.lblStep1.Name = "lblStep1";
+            this.lblStep1.Size = new System.Drawing.Size(40, 13);
+            this.lblStep1.TabIndex = 11;
+            this.lblStep1.Text = "Step1";
             // 
-            // lblVerify
+            // lblStatus1
             // 
-            this.lblVerify.AutoSize = true;
-            this.lblVerify.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblVerify.Location = new System.Drawing.Point(40, 88);
-            this.lblVerify.Name = "lblVerify";
-            this.lblVerify.Size = new System.Drawing.Size(148, 13);
-            this.lblVerify.TabIndex = 11;
-            this.lblVerify.Text = "Verify EEPROM contents";
+            this.lblStatus1.AutoSize = true;
+            this.lblStatus1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblStatus1.Location = new System.Drawing.Point(17, 11);
+            this.lblStatus1.Name = "lblStatus1";
+            this.lblStatus1.Size = new System.Drawing.Size(17, 13);
+            this.lblStatus1.TabIndex = 11;
+            this.lblStatus1.Text = "✔";
             // 
-            // lblCheckResult
+            // lblStep3
             // 
-            this.lblCheckResult.AutoSize = true;
-            this.lblCheckResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCheckResult.Location = new System.Drawing.Point(17, 11);
-            this.lblCheckResult.Name = "lblCheckResult";
-            this.lblCheckResult.Size = new System.Drawing.Size(17, 13);
-            this.lblCheckResult.TabIndex = 11;
-            this.lblCheckResult.Text = "✔";
+            this.lblStep3.AutoSize = true;
+            this.lblStep3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblStep3.Location = new System.Drawing.Point(40, 62);
+            this.lblStep3.Name = "lblStep3";
+            this.lblStep3.Size = new System.Drawing.Size(44, 13);
+            this.lblStep3.TabIndex = 11;
+            this.lblStep3.Text = "Step 3";
             // 
-            // lblWrite
+            // lblStatus2
             // 
-            this.lblWrite.AutoSize = true;
-            this.lblWrite.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblWrite.Location = new System.Drawing.Point(40, 62);
-            this.lblWrite.Name = "lblWrite";
-            this.lblWrite.Size = new System.Drawing.Size(146, 13);
-            this.lblWrite.TabIndex = 11;
-            this.lblWrite.Text = "Write EEPROM contents";
+            this.lblStatus2.AutoSize = true;
+            this.lblStatus2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblStatus2.Location = new System.Drawing.Point(17, 37);
+            this.lblStatus2.Name = "lblStatus2";
+            this.lblStatus2.Size = new System.Drawing.Size(17, 13);
+            this.lblStatus2.TabIndex = 11;
+            this.lblStatus2.Text = "✔";
             // 
-            // lblReadResult
+            // lblStep2
             // 
-            this.lblReadResult.AutoSize = true;
-            this.lblReadResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblReadResult.Location = new System.Drawing.Point(17, 37);
-            this.lblReadResult.Name = "lblReadResult";
-            this.lblReadResult.Size = new System.Drawing.Size(17, 13);
-            this.lblReadResult.TabIndex = 11;
-            this.lblReadResult.Text = "✔";
+            this.lblStep2.AutoSize = true;
+            this.lblStep2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblStep2.Location = new System.Drawing.Point(40, 37);
+            this.lblStep2.Name = "lblStep2";
+            this.lblStep2.Size = new System.Drawing.Size(44, 13);
+            this.lblStep2.TabIndex = 11;
+            this.lblStep2.Text = "Step 2";
             // 
-            // lblRead
+            // lblStatus3
             // 
-            this.lblRead.AutoSize = true;
-            this.lblRead.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblRead.Location = new System.Drawing.Point(40, 37);
-            this.lblRead.Name = "lblRead";
-            this.lblRead.Size = new System.Drawing.Size(146, 13);
-            this.lblRead.TabIndex = 11;
-            this.lblRead.Text = "Read EEPROM contents";
-            // 
-            // lblWriteResult
-            // 
-            this.lblWriteResult.AutoSize = true;
-            this.lblWriteResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblWriteResult.Location = new System.Drawing.Point(17, 62);
-            this.lblWriteResult.Name = "lblWriteResult";
-            this.lblWriteResult.Size = new System.Drawing.Size(17, 13);
-            this.lblWriteResult.TabIndex = 11;
-            this.lblWriteResult.Text = "✔";
-            // 
-            // lblVerifyResult
-            // 
-            this.lblVerifyResult.AutoSize = true;
-            this.lblVerifyResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblVerifyResult.Location = new System.Drawing.Point(17, 88);
-            this.lblVerifyResult.Name = "lblVerifyResult";
-            this.lblVerifyResult.Size = new System.Drawing.Size(17, 13);
-            this.lblVerifyResult.TabIndex = 11;
-            this.lblVerifyResult.Text = "✔";
+            this.lblStatus3.AutoSize = true;
+            this.lblStatus3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblStatus3.Location = new System.Drawing.Point(17, 62);
+            this.lblStatus3.Name = "lblStatus3";
+            this.lblStatus3.Size = new System.Drawing.Size(17, 13);
+            this.lblStatus3.TabIndex = 11;
+            this.lblStatus3.Text = "✔";
             // 
             // btnWrite
             // 
@@ -387,11 +363,10 @@
 
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Label lblVerify;
-        private System.Windows.Forms.Label lblWrite;
-        private System.Windows.Forms.Label lblRead;
-        private System.Windows.Forms.Label lblCheckResult;
-        private System.Windows.Forms.Label lblCheck;
+        private System.Windows.Forms.Label lblStep3;
+        private System.Windows.Forms.Label lblStep2;
+        private System.Windows.Forms.Label lblStatus1;
+        private System.Windows.Forms.Label lblStep1;
         private System.Windows.Forms.Button btnWrite;
         private System.Windows.Forms.Button btnRead;
         private System.Windows.Forms.Button btnCheck;
@@ -405,9 +380,8 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Button btnClearText;
         private System.Windows.Forms.Button btnClose;
-        private System.Windows.Forms.Label lblVerifyResult;
-        private System.Windows.Forms.Label lblWriteResult;
-        private System.Windows.Forms.Label lblReadResult;
+        private System.Windows.Forms.Label lblStatus3;
+        private System.Windows.Forms.Label lblStatus2;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Panel panel7;

@@ -1,0 +1,26 @@
+﻿### User data format ###
+
+Hint:
+ 1. Blank line is ignored
+ 2. text after '#' on a line is ignored
+ 3. Load sample and see how it's done.
+
+ --------------------------------------------------------------
+Format:
+--------------------------------------------------------------
+[number of users] (up to 4 users)
+[1st user's name] (up to 10 letters)
+[1st user's current stage] (make this 0 to play from the start)
+[1st user's reward key] (4 letters)
+[2nd user's name] 
+[2nd user's current stage]
+[2nd user's reward key]
+  ... up to 4 users
+
+--------------------------------------------------------------
+Example:
+--------------------------------------------------------------
+1
+George
+0
+1234

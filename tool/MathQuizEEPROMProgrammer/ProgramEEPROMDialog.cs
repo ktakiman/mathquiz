@@ -42,6 +42,55 @@ namespace MathQuizEEPROMWriter
             Failure
         }
 
+        private class Step
+        {
+            public string Label { get; set; }
+            public EStatus Status { get; set; }
+
+            private const string _lblConnect = "Connected to EEPROM Programmer";
+            private const string _lblRead = "Read EEPROM contents";
+            private const string _lblWrite = "Write EEPROM contents";
+            private const string _lblVerify = "Verify EEPROM contents";
+
+            private static readonly Step _noneStep = new Step("", EStatus.Inactive);
+
+            public Step(string label, EStatus status)
+            {
+                Label = label;
+                Status = status;
+            }
+
+            public static List<Step> NoneSteps =>
+                new List<Step>
+                {
+                    _noneStep, _noneStep, _noneStep
+                };
+
+            public static List<Step> CheckSteps =>
+                new List<Step>
+                {
+                    new Step(_lblConnect, EStatus.Pending),
+                    _noneStep,
+                    _noneStep
+                };
+
+            public static List<Step> ReadSteps =>
+                new List<Step>
+                {
+                    new Step(_lblConnect, EStatus.Pending),
+                    new Step(_lblRead, EStatus.Pending),
+                    _noneStep
+                };
+
+            public static List<Step> WriteSteps =>
+                new List<Step>
+                {
+                    new Step(_lblConnect, EStatus.Pending),
+                    new Step(_lblWrite, EStatus.Pending),
+                    new Step(_lblVerify, EStatus.Pending)
+                };
+        }
+
         private byte[] _newData;
 
 
@@ -51,10 +100,7 @@ namespace MathQuizEEPROMWriter
 
             _newData = newData;
 
-            setStatus(lblCheckResult, lblCheck, EStatus.Inactive);
-            setStatus(lblReadResult, lblRead, EStatus.Inactive);
-            setStatus(lblWriteResult, lblWrite, EStatus.Inactive);
-            setStatus(lblVerifyResult, lblVerify, EStatus.Inactive);
+            setStatus(Step.NoneSteps);
         }
 
         protected override void OnShown(EventArgs e)
@@ -66,31 +112,27 @@ namespace MathQuizEEPROMWriter
 
         public void OnClickEEPROMActionButton(object sender, EventArgs e)
         {
+            setStatus(Step.NoneSteps);
+
             var com = cbComPort.SelectedValue as string;
 
             bool isCheck = sender == btnCheck;
             bool isRead = sender == btnRead;
             bool isWrite = sender == btnWrite;
 
-            setStatus(lblCheckResult, lblCheck, EStatus.Pending);
+            List<Step> steps = null;
 
             if (isRead)
             {
-                setStatus(lblReadResult, lblRead, EStatus.Pending);
-                setStatus(lblWriteResult, lblWrite, EStatus.Inactive);
-                setStatus(lblVerifyResult, lblVerify, EStatus.Inactive);
+                steps = Step.ReadSteps;
             }
             else if (isWrite)
             {
-                setStatus(lblReadResult, lblRead, EStatus.Inactive);
-                setStatus(lblWriteResult, lblWrite, EStatus.Pending);
-                setStatus(lblVerifyResult, lblVerify, EStatus.Pending);
+                steps = Step.WriteSteps;
             }
             else
             {
-                setStatus(lblReadResult, lblRead, EStatus.Inactive);
-                setStatus(lblWriteResult, lblWrite, EStatus.Inactive);
-                setStatus(lblVerifyResult, lblVerify, EStatus.Inactive);
+                steps = Step.CheckSteps;
             }
 
             try
@@ -101,37 +143,37 @@ namespace MathQuizEEPROMWriter
 
                     if (checkProgrammerStatus(port))
                     {
-                        setStatus(lblCheckResult, lblCheck, EStatus.Success);
+                        steps[0].Status = EStatus.Success;
+                        setStatus(steps);
 
                         if (isRead)
                         {
                             byte[] outBuf;
                             var readSuccess = readEEPROM(port, out outBuf);
 
-                            setStatus(lblReadResult, lblRead, readSuccess ? EStatus.Success : EStatus.Failure);
-
+                            steps[1].Status = readSuccess ? EStatus.Success : EStatus.Failure;
+                            setStatus(steps);
                         }
                         else if (isWrite)
                         {
                             var writeSuccess = writeEEPROM(port);
 
-                            setStatus(lblWriteResult, lblWrite, writeSuccess ? EStatus.Success : EStatus.Failure);
-
+                            steps[1].Status = writeSuccess ? EStatus.Success : EStatus.Failure;
+                            setStatus(steps);
+                            
                             if (writeSuccess)
                             {
                                 byte[] outBuf;
                                 var readSuccess = readEEPROM(port, out outBuf);
-                                var verifySuccess = readSuccess && outBuf.SequenceEqual(_newData);
-
-                                setStatus(lblVerifyResult, lblVerify, verifySuccess ? EStatus.Success : EStatus.Failure);
-
+                                steps[2].Status = readSuccess && outBuf.SequenceEqual(_newData) ? EStatus.Success : EStatus.Failure;
+                                setStatus(steps);
                             }
                         }
                     }
                     else
                     {
-                        setStatus(lblCheckResult, lblCheck, EStatus.Failure);
-
+                        steps[0].Status = EStatus.Failure;
+                        setStatus(steps);
                     }
 
                     port.Close();
@@ -295,6 +337,45 @@ namespace MathQuizEEPROMWriter
             return string.Join(" ", Enumerable.Range(start, size).Select(p => hex(buf[p], prepend0X)));
         }
 
+        private void setStatus(List<Step> steps)
+        {
+            setStatus(lblStatus1, lblStep1, steps[0]);
+            setStatus(lblStatus2, lblStep2, steps[1]);
+            setStatus(lblStatus3, lblStep3, steps[2]);
+
+            Refresh();
+        }
+
+        private void setStatus(Label lblCheck, Label lblText, Step step)
+        {
+            lblText.Text = step.Label;
+            
+            if (step.Status == EStatus.Inactive)
+            {
+                lblCheck.Visible = lblText.Visible  = false;
+            }
+            else
+            {
+                lblCheck.Visible = lblText.Visible = true;
+                lblText.ForeColor = Color.Black;
+
+                if (step.Status == EStatus.Pending)
+                {
+                    lblCheck.ForeColor = Color.Gray;
+                    lblCheck.Text = "_";
+                }
+                else if (step.Status == EStatus.Success)
+                {
+                    lblCheck.ForeColor = Color.Green;
+                    lblCheck.Text = "✔";
+                }
+                else if (step.Status == EStatus.Failure)
+                {
+                    lblCheck.ForeColor = Color.Red;
+                    lblCheck.Text = "X";
+                }
+            }
+        }
         private void setStatus(Label lblCheck, Label lblText, EStatus status)
         {
             if (status == EStatus.Inactive)

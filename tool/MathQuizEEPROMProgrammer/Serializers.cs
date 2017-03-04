@@ -38,35 +38,31 @@ namespace MathQuizEEPROMWriter
         }
     }
 
-    class QuestionsSerializer : BaseSerializer
+    class UserDataSerializer : BaseSerializer
     {
-        byte _stageCt;
-        byte _qsPerStage;
+        List<UserData> _users = new List<UserData>();
 
-        class QData
+        class UserData
         {
-            public UInt16 Num1 { get; set; }
-            public UInt16 Num2 { get; set; }
-            public char Op { get; set; }
+            public string Name { get; set; }
+            public byte Stage { get; set; }
+            public string SecretKey { get; set; }
         }
 
-        List<QData> _qs = new List<QData>();
+        public byte UserCt { get; private set; }
 
-        public QuestionsSerializer(string filepath) :
-            base(filepath)
+        public UserDataSerializer(string inputTest) :
+            base(inputTest)
         {
-            _stageCt = byte.Parse(_lines[0]);
-            _qsPerStage = byte.Parse(_lines[1]);
+            UserCt = byte.Parse(_lines[0]);
 
-            for (int i = 0; i < _stageCt * _qsPerStage; i++)  // watch overflow here
+            for (int i = 0; i < UserCt; i++)
             {
-                var tokens = _lines[i + 2].Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-
-                _qs.Add(new QData
+                _users.Add(new UserData
                 {
-                    Num1 = UInt16.Parse(tokens[0]),
-                    Num2 = UInt16.Parse(tokens[2]),
-                    Op = tokens[1][0]
+                    Name = _lines[1 + i * 3].PadRight(10, ' ').Substring(0, 10),
+                    Stage = byte.Parse(_lines[1 + i * 3 + 1]),
+                    SecretKey = _lines[1 + i * 3 + 2].PadRight(4, ' ').Substring(0, 4)
                 });
             }
         }
@@ -75,20 +71,108 @@ namespace MathQuizEEPROMWriter
         {
             var data = new List<byte>();
 
-            data.Add(_stageCt);
-            data.Add(_qsPerStage);
+            data.Add(UserCt);
 
-            foreach (var q in _qs)
+            foreach (var user in _users)
             {
-                addUInt16(data, q.Num1);
-                addUInt16(data, q.Num2);
-
-                data.Add((byte)(q.Op));
+                data.AddRange(Encoding.UTF8.GetBytes(user.Name));
+                data.Add(user.Stage);
+                data.AddRange(Encoding.UTF8.GetBytes(user.SecretKey));
             }
 
             return data;
         }
+    }
 
+    class QuestionsSerializer : BaseSerializer
+    {
+        class QData
+        {
+            public UInt16 Num1 { get; set; }
+            public UInt16 Num2 { get; set; }
+            public char Op { get; set; }
+        }
+
+        class QuestionsPerUser
+        {
+            public byte StageCt { get; set; }
+            public byte QuestionsPerStage { get; set; }
+            public List<QData> Questions { get; } = new List<QData>();
+
+            public int TotalNumberOfQuestions => StageCt * QuestionsPerStage;
+
+            public List<byte> Serialize()
+            {
+                var data = new List<byte>();
+
+                data.Add(StageCt);
+                data.Add(QuestionsPerStage);
+
+                foreach (var q in Questions)
+                {
+                    addUInt16(data, q.Num1);
+                    addUInt16(data, q.Num2);
+
+                    data.Add((byte)(q.Op));
+                }
+
+                return data;
+            }
+        }
+
+        List<QuestionsPerUser> _qData = new List<QuestionsPerUser>();
+
+        public QuestionsSerializer(string inputText, int userCt) :
+            base(inputText)
+        {
+            int curLine = 0;
+
+            for (int i = 0; i < userCt; i++)
+            {
+                var qPerUser = new QuestionsPerUser
+                {
+                    StageCt = byte.Parse(_lines[curLine++]),
+                    QuestionsPerStage = byte.Parse(_lines[curLine++])
+                };
+
+                for (int j = 0; j < qPerUser.TotalNumberOfQuestions; j++)
+                {
+                    var tokens = _lines[curLine++].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    qPerUser.Questions.Add(new QData
+                    {
+                        Num1 = UInt16.Parse(tokens[0]),
+                        Num2 = UInt16.Parse(tokens[2]),
+                        Op = tokens[1][0]
+                    });
+                }
+
+                _qData.Add(qPerUser);
+            }
+        }
+
+        public List<byte> Serialize()
+        {
+            var addressTableLen = 2 * _qData.Count;
+            var data = new List<byte>(Enumerable.Repeat((byte)0, addressTableLen));
+
+            var curAddress = addressTableLen;
+
+            for (int i = 0; i < _qData.Count; i++)
+            {
+                if (i < _qData.Count - 1)
+                {
+                    data[i * 2] = (byte)(curAddress >> 8);
+                    data[i * 2 + 1] = (byte)(curAddress);
+                }
+
+                var perUserData = _qData[i].Serialize();
+                curAddress += perUserData.Count;
+                data.AddRange(perUserData);
+            }
+
+            return data;
+        }
     }
 
     class SoundSerializer : BaseSerializer
@@ -123,8 +207,8 @@ namespace MathQuizEEPROMWriter
 
         private List<Comp> _comps = new List<Comp>();
 
-        public SoundSerializer(string filepath)
-            : base(filepath)
+        public SoundSerializer(string inputText)
+            : base(inputText)
         {
             Comp comp = null;
 
@@ -191,21 +275,5 @@ namespace MathQuizEEPROMWriter
             return new Note(tone, scale, lenEnu, lenDen);
         }
 
-    }
-
-    class LockKeySerializer : BaseSerializer
-    {
-        private List<byte> _keys = new List<byte>();
-
-        public LockKeySerializer(string filepath)
-            : base(filepath)
-        {
-            _keys = _lines[0].Take(4).Select(c => (byte)c).ToList();
-        }
-
-        public List<byte> Serialize()
-        {
-            return _keys;
-        }
     }
 }
