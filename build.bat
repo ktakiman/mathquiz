@@ -29,13 +29,13 @@ SET clock=8000000
 
 echo on
 
-avr-gcc -g -Os -c -mmcu=%mcugcc% -D"F_CPU=%clock%" avrlib\lcd-pcd8544.c -l%avrincludepath%
+avr-gcc -g -Os -c -std=c99 -mmcu=%mcugcc% -D"F_CPU=%clock%" avrlib\lcd-pcd8544.c -l%avrincludepath%
 @IF ERRORLEVEL 1 GOTO errorHandling
 
-avr-gcc -g -Os -c -mmcu=%mcugcc% -D"F_CPU=%clock%" avrlib\i2c.c -l%avrincludepath%
+avr-gcc -g -Os -c -std=c99 -mmcu=%mcugcc% -D"F_CPU=%clock%" avrlib\i2c.c -l%avrincludepath%
 @IF ERRORLEVEL 1 GOTO errorHandling
 
-avr-gcc -g -Os -c -mmcu=%mcugcc% -D"F_CPU=%clock%" src\%proj%.c -l%avrincludepath%
+avr-gcc -g -Os -c -std=c99 -mmcu=%mcugcc% -D"F_CPU=%clock%" src\%proj%.c -l%avrincludepath%
 @IF ERRORLEVEL 1 GOTO errorHandling
 
 avr-gcc -g -mmcu=%mcugcc% -o %proj%.elf %proj%.o lcd-pcd8544.o i2c.o 

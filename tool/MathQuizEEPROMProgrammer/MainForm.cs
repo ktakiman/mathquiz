@@ -138,7 +138,14 @@ namespace MathQuizEEPROMWriter
         {
             _eepromData = MainSerializer.Serialize(tbUsData.Text, tbQData.Text, tbSdData.Text);
 
-            tbEEPROMData.Text = formatMemory(0, _eepromData, _eepromData.Count);
+            if (_eepromData != null)
+            {
+                tbEEPROMData.Text = formatMemory(0, _eepromData, _eepromData.Count);
+            }
+            else
+            {
+                MessageBox.Show("Format error");
+            }
         }
 
         private void OnClickProgramEEPROM(object sender, EventArgs e)

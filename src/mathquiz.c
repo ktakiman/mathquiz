@@ -22,7 +22,7 @@
 #define INPUT_INDENT 2
 #define INPUT_OK_CURSOR_POS 7
 
-typedef uint8_t (*FUNC_SELECTUSER)(int, uint8_t*);
+typedef uint8_t (*FUNC_SELECTUSER)(uint8_t, uint8_t*);
 
 volatile uint8_t gBtn1Clicked = 0;
 volatile uint8_t gBtn2Clicked = 0;
@@ -138,8 +138,7 @@ uint8_t writeToBuf(uint8_t s[], uint8_t buf[], uint8_t startPos, uint8_t nullTer
 // ----------------------------------------------------------------------------
 void memCopy(uint8_t srcBuf[], uint8_t tgtBuf[], uint8_t srcStartPos, uint8_t tgtStartPos, uint8_t len)
 {
-    uint8_t i = 0;
-    for (i = 0; i < len; i++)
+    for (uint8_t i = 0; i < len; i++)
     {
         tgtBuf[tgtStartPos + i] = srcBuf[srcStartPos + i];
     } 
@@ -151,6 +150,42 @@ uint16_t readUInt16(uint8_t buf[], uint8_t pos)
     *((uint8_t*)&v + 1) = buf[pos];
     *((uint8_t*)&v) = buf[pos + 1];
     return v;
+}
+// ----------------------------------------------------------------------------
+uint8_t selectUser(uint8_t numUsers, uint8_t* pData)
+{
+    uint8_t selected = 0;
+    while(1)
+    {
+        uint8_t buf[13];
+        buf[1] = ' ';
+        buf[12] = 0;
+        for (uint8_t i = 0; i < numUsers; i++)
+        {
+            buf[0] = i == selected ? '>' : ' '; 
+            memCopy(pData, buf, i * 21, 2, 10);
+            _pcd8544_setText(i, buf, 0);
+        }
+
+        _pcd8544_renderText();
+
+        while (1)
+        {
+            if (gBtn2Clicked)
+            {
+                selected = selected == numUsers - 1 ? 0 : selected + 1;
+                gBtn2Clicked = 0;
+                break;
+            }
+            if (gBtn1Clicked)
+            {
+                gBtn1Clicked = 0;
+                return selected;
+            }
+        }
+    }
+
+    return 0; // should never execute
 }
 // ----------------------------------------------------------------------------
 void setupNextQuestionAndBuf()
@@ -261,8 +296,7 @@ uint8_t checkAnswer(uint8_t buf[])
         case '/': calculated = gVal1 / gVal2; break;
     }
     
-    uint8_t i;
-    for (i = 0; i < 4; i++)
+    for (uint8_t i = 0; i < 4; i++)
     {
         if (buf[2 + i] != ' ')
         {
@@ -507,8 +541,7 @@ void playNote(uint16_t pitch, uint16_t duration, uint8_t noGap, void (*pIdleCall
 // ----------------------------------------------------------------------------
 void playTuneBlock(uint8_t* buf, uint8_t numOfNotes, uint16_t baseDuration, uint8_t noGap, void (*pIdleCallback)())
 {
-    uint8_t i = 0;
-    for (;i < numOfNotes; i++)
+    for (uint8_t i = 0;i < numOfNotes; i++)
     {
         uint16_t pitch = 0;
         uint16_t duration = 0;
@@ -672,20 +705,8 @@ int main(void) {
     
     _i2c_init(&gI2C);    
     
-    initFromExEEPROMData(&gI2C, 0);
-
-    while (1)
-    {
-        if (gBtn1Clicked || gBtn2Clicked)
-        {
-            gBtn1Clicked = gBtn2Clicked = 0;
-            break;
-        }
-    }
+    initFromExEEPROMData(&gI2C, selectUser);
    
-    //playTune(3);
-    //playTune(4);
-    
     gQIndex = 0;
     
     gLifeCt = 5;
