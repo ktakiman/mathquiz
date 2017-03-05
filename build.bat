@@ -1,3 +1,4 @@
+@echo off
 CLS
 
 SET avrincludepath="C:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\"
@@ -24,8 +25,9 @@ rem m328p
 
 SET mcuavr=m328p
 
-
 SET clock=8000000
+
+echo on
 
 avr-gcc -g -Os -c -mmcu=%mcugcc% -D"F_CPU=%clock%" avrlib\lcd-pcd8544.c -l%avrincludepath%
 @IF ERRORLEVEL 1 GOTO errorHandling
@@ -36,7 +38,7 @@ avr-gcc -g -Os -c -mmcu=%mcugcc% -D"F_CPU=%clock%" avrlib\i2c.c -l%avrincludepat
 avr-gcc -g -Os -c -mmcu=%mcugcc% -D"F_CPU=%clock%" src\%proj%.c -l%avrincludepath%
 @IF ERRORLEVEL 1 GOTO errorHandling
 
-avr-gcc -g -mmcu=%mcugcc% -o %proj%.elf %proj%.o lcd-pcd8544.o i2c.o
+avr-gcc -g -mmcu=%mcugcc% -o %proj%.elf %proj%.o lcd-pcd8544.o i2c.o 
 @IF ERRORLEVEL 1 GOTO errorHandling
 
 avr-objcopy -j .text -j .data -O ihex %proj%.elf %proj%.hex
@@ -48,6 +50,8 @@ avr-objdump -d %proj%.elf > %proj%.asm
 @echo.
 @echo #### Build succeeded !!! ###
 @echo.
+
+@IF "%1"=="-skip" GOTO end
 
 avrdude -c avrisp -p %mcuavr% -P com4 -b 19200 -U flash:w:%proj%.hex -C %avrdudeconfpath%
 @IF ERRORLEVEL 1 GOTO flashErrorHandling

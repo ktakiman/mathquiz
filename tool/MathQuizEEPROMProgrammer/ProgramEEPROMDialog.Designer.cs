@@ -100,8 +100,10 @@
             // 
             // panel7
             // 
+            this.panel7.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panel7.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel7.Location = new System.Drawing.Point(12, 251);
+            this.panel7.Location = new System.Drawing.Point(12, 235);
             this.panel7.Name = "panel7";
             this.panel7.Size = new System.Drawing.Size(520, 2);
             this.panel7.TabIndex = 14;
@@ -117,6 +119,8 @@
             // 
             // panel6
             // 
+            this.panel6.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panel6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel6.Controls.Add(this.lblStep1);
             this.panel6.Controls.Add(this.lblStatus1);
@@ -126,7 +130,7 @@
             this.panel6.Controls.Add(this.lblStatus3);
             this.panel6.Location = new System.Drawing.Point(99, 49);
             this.panel6.Name = "panel6";
-            this.panel6.Size = new System.Drawing.Size(338, 118);
+            this.panel6.Size = new System.Drawing.Size(433, 118);
             this.panel6.TabIndex = 12;
             // 
             // lblStep1
@@ -191,6 +195,7 @@
             // 
             // btnWrite
             // 
+            this.btnWrite.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnWrite.Location = new System.Drawing.Point(447, 187);
             this.btnWrite.Name = "btnWrite";
             this.btnWrite.Size = new System.Drawing.Size(90, 23);
@@ -201,7 +206,8 @@
             // 
             // btnRead
             // 
-            this.btnRead.Location = new System.Drawing.Point(330, 187);
+            this.btnRead.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRead.Location = new System.Drawing.Point(334, 187);
             this.btnRead.Name = "btnRead";
             this.btnRead.Size = new System.Drawing.Size(107, 23);
             this.btnRead.TabIndex = 10;
@@ -211,7 +217,8 @@
             // 
             // btnCheck
             // 
-            this.btnCheck.Location = new System.Drawing.Point(184, 187);
+            this.btnCheck.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCheck.Location = new System.Drawing.Point(204, 187);
             this.btnCheck.Name = "btnCheck";
             this.btnCheck.Size = new System.Drawing.Size(124, 23);
             this.btnCheck.TabIndex = 10;
@@ -312,7 +319,8 @@
             // 
             // btnClearText
             // 
-            this.btnClearText.Location = new System.Drawing.Point(323, 6);
+            this.btnClearText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClearText.Location = new System.Drawing.Point(381, 6);
             this.btnClearText.Name = "btnClearText";
             this.btnClearText.Size = new System.Drawing.Size(75, 23);
             this.btnClearText.TabIndex = 11;
@@ -322,12 +330,13 @@
             // 
             // btnClose
             // 
+            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnClose.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnClose.Location = new System.Drawing.Point(462, 6);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
             this.btnClose.TabIndex = 11;
-            this.btnClose.Text = "OK";
+            this.btnClose.Text = "C&lose";
             this.btnClose.UseVisualStyleBackColor = true;
             // 
             // ProgramEEPROMDialog

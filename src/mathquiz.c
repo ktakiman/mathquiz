@@ -22,6 +22,8 @@
 #define INPUT_INDENT 2
 #define INPUT_OK_CURSOR_POS 7
 
+typedef uint8_t (*FUNC_SELECTUSER)(int, uint8_t*);
+
 volatile uint8_t gBtn1Clicked = 0;
 volatile uint8_t gBtn2Clicked = 0;
 volatile uint8_t gBtn3Clicked = 0;
@@ -48,16 +50,17 @@ uint8_t gBufAnswer[PCD8544_COL_MAX + 1];
 uint8_t gBufCursor[PCD8544_COL_MAX + 1];
 uint8_t gBufMsg[PCD8544_COL_MAX + 1];
 
-#define EX_EEPROM_BUF_SIZE 16
+#define EX_EEPROM_BUF_SIZE 128
 struct I2C gI2C;
 uint8_t gExEEPROMBuf[EX_EEPROM_BUF_SIZE];
 uint8_t gExEEPROMBuf2[EX_EEPROM_BUF_SIZE];
+
 uint16_t gExEEPROMAddrQ;
 uint16_t gExEEPROMAddrS;
-uint16_t gExEEPROMAddrL;
+uint16_t gExEEPROMAddrStage;
 
 uint8_t gNumOfTunes;
-uint8_t gLockKey[5];
+uint8_t gLockKey[11];
 
 // ----------------------------------------------------------------------------
 void playTune(uint8_t index);
@@ -125,13 +128,21 @@ uint8_t writeToBuf(uint8_t s[], uint8_t buf[], uint8_t startPos, uint8_t nullTer
         if (s[pos] == 0) { break; }
         
         buf[startPos + pos] = s[pos];
-        
         pos++;
     }
     
     if (nullTerminate) { buf[startPos + pos] = 0; }
     
     return startPos + pos;
+}
+// ----------------------------------------------------------------------------
+void memCopy(uint8_t srcBuf[], uint8_t tgtBuf[], uint8_t srcStartPos, uint8_t tgtStartPos, uint8_t len)
+{
+    uint8_t i = 0;
+    for (i = 0; i < len; i++)
+    {
+        tgtBuf[tgtStartPos + i] = srcBuf[srcStartPos + i];
+    } 
 }
 // ----------------------------------------------------------------------------
 uint16_t readUInt16(uint8_t buf[], uint8_t pos)
@@ -294,7 +305,7 @@ void showStageClearMsg()
     
     if (gStage % 2 == 1)
     {
-        playTune(3  + gStage / 2);
+        playTune(4  + (gStage / 2) % (gNumOfTunes - 4));
     }
     else
     {
@@ -308,11 +319,11 @@ void showFinale()
     _pcd8544_setText(1, " CONGRATS!!!\0", 0);
     _pcd8544_setText(3, "SECRET KEY IS\0", 0);
 
-    uint8_t msgPos = writeToBuf("    ", gBufMsg, 0, 0);
-    writeToBuf(gLockKey, gBufMsg, msgPos, 1);
+    uint8_t pos = writeToBuf(" ", gBufMsg, 0, 0);
+    pos = writeToBuf(gLockKey, gBufMsg, pos, 1);
     _pcd8544_setText(5, gBufMsg, 1);
     
-    playTune(3 + gStageCt / 2);
+    playTune(3);
 
     while (1);
 }
@@ -326,27 +337,65 @@ void updateLcd()
     _pcd8544_setText(LINE_CURSOR, gBufCursor, 1);
 }
 // ----------------------------------------------------------------------------
-void initFromExEEPROMData(struct I2C* pI2C)
+void dumpByte(uint8_t byte) // LCD used as debug dump
 {
-    // read address for the main blocks
-    _eeprom_read(pI2C, 0x0000, (uint8_t*)gExEEPROMBuf, 0, 6);
-    
-    gExEEPROMAddrQ = readUInt16(gExEEPROMBuf, 0);
-    gExEEPROMAddrS = readUInt16(gExEEPROMBuf, 2);
-    gExEEPROMAddrL = readUInt16(gExEEPROMBuf, 4);
+    _pcd8544_newLine(0);
+    _pcd8544_appendByteAsHex(byte, 1);
+}
+// ----------------------------------------------------------------------------
+void dumpWord(uint16_t word) // LCD used as debug dump
+{
+    _pcd8544_newLine(0);
+    _pcd8544_appendWordAsHex(word, 1);
+}
+// ----------------------------------------------------------------------------
+void initFromExEEPROMData(struct I2C* pI2C, FUNC_SELECTUSER selectUser)
+{
+    uint8_t* buf = (uint8_t*)gExEEPROMBuf;
 
-    // read question block header
-    _eeprom_read(pI2C, gExEEPROMAddrQ, (uint8_t*)gExEEPROMBuf, 0, 2);
+    // read address for the main blocks
+    _eeprom_read(pI2C, 0x0000, buf, 0, 6);
+
+    uint16_t addrU = readUInt16(buf, 0);
+    uint16_t addrQ = readUInt16(buf, 2);
+    gExEEPROMAddrS = readUInt16(buf, 4);
+
+    // read userinfo block
+    uint8_t numUsrs;
+    _eeprom_read(pI2C, addrU, &numUsrs, 0, 1);
+
     
-    gStageCt = gExEEPROMBuf[0];
-    gNumOfQsInStage = gExEEPROMBuf[1];
-    
-    // read song block header
-    _eeprom_read(pI2C, gExEEPROMAddrS, &gNumOfTunes, 0, 1);
+    uint8_t usrIndex = 0;
+    _eeprom_read(pI2C, addrU + 1, buf, 0, numUsrs * 21); // name = 10 bytes, stage = 1 byte, secret key = 10 bytes
+
+    if (numUsrs > 1)
+    {
+        usrIndex = selectUser(numUsrs, buf);
+    }
+
+    gStage = buf[21 * usrIndex + 10]; // stage is at offset 10 
+    gExEEPROMAddrStage = addrU + 1 + 21 * usrIndex + 10; // has to be a global address
     
     // read lock key number
-    _eeprom_read(pI2C, gExEEPROMAddrL, (uint8_t*)gLockKey, 0, 4);
-    gLockKey[4] = 0;
+    memCopy(buf, gLockKey, 21 * usrIndex + 11, 0, 10);
+    gLockKey[10] = 0;
+
+    // read question block header
+    _eeprom_read(pI2C, addrQ + 2 * usrIndex, buf, 0, 2);
+    gExEEPROMAddrQ = addrQ + readUInt16(buf, 0);
+
+    _eeprom_read(pI2C, gExEEPROMAddrQ, buf, 0, 2);
+    
+    gStageCt = buf[0];
+    gNumOfQsInStage = buf[1];
+
+    if (gStage >= gStageCt)
+    {
+        gStage = 0;
+    }
+
+    // read song block header
+    _eeprom_read(pI2C, gExEEPROMAddrS, &gNumOfTunes, 0, 1);
 }
 // ----------------------------------------------------------------------------
 void i2cDump(uint8_t* pMsg)
@@ -555,47 +604,12 @@ void playTune(uint8_t index)
         playTuneBlock(gpTuneBufToUse, gNextTuneBlockSize, BASE_TUNE_SPEED / gTuneSpeed, 0, loadTuneBlock);      
     }
 }
-
 // ----------------------------------------------------------------------------
-// WS2812
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-/*
-void lightUp(uint8_t* data, uint8_t numOfColor)
+void setStage(uint8_t stage)
 {
-    uint8_t dataLen = 3 * numOfColor;
-    uint8_t curByte, i;
-  
-    uint8_t masklo = 0;
-    uint8_t maskhi = (1 << PINB6);
-
-    while (dataLen--) {
-        curByte=*data++;
-
-        asm volatile(
-        "       ldi   %0,8  \n\t"    // set counter to 8
-        "loop%=:            \n\t"
-        "       out   %2,%3 \n\t"    //  hi
-        "       nop         \n\t"
-        "       nop         \n\t"
-        "       sbrs  %1,7  \n\t"    //  skip next instruction if bit 7 is
-        "       out   %2,%4 \n\t"    //  Low
-        "       lsl   %1    \n\t"    //  bit shift color-byte
-        "       nop         \n\t"
-        "       nop         \n\t"
-        "       nop         \n\t"
-        "       out   %2,%4 \n\t"    //  low
-        "       nop         \n\t"
-        "       dec   %0    \n\t"    //  decrement counter
-        "       brne  loop%=\n\t"    //  repeat if counter is not 0
-        :	"=&d" (i)
-        :	"r" (curByte), "I" (_SFR_IO_ADDR(PORTB)), "r" (maskhi), "r" (masklo)
-        );
-    }
+    _eeprom_write(&gI2C, gExEEPROMAddrStage, &stage, 0, 1, 1);
 }
-*/
 // ----------------------------------------------------------------------------
-
 ISR(TIMER0_COMPA_vect)
 {
     gDelayCt++;
@@ -623,6 +637,7 @@ int main(void) {
     
     // Switch button setup - PC0(PCINT8), PC1(PCINT9), PC2(PCINT10)
     PORTC |= (1 << PINC0 | 1 << PINC1 | 1 << PINC2);
+
     // pin change interrupt for switch buttons
     PCICR |= (1 << PCIE1);
     PCMSK1 |= (1 << PCINT8 | 1 << PCINT9 | 1 << PCINT10);
@@ -657,17 +672,7 @@ int main(void) {
     
     _i2c_init(&gI2C);    
     
-    initFromExEEPROMData(&gI2C);
-
-    eeprom_is_ready(); // internal EEPROM (current stage is saved in the AVR's internal EEPROM)
-    
-    // if (!(PINC &= (1 << PINC5)))
-    // {
-        // eeprom_write_byte(EEPROM_ADDR_STAGE, 0);
-    // }
-    
-    gStage = eeprom_read_byte(EEPROM_ADDR_STAGE);
-    if (gStage >= gStageCt) { gStage = 0; }
+    initFromExEEPROMData(&gI2C, 0);
 
     while (1)
     {
@@ -678,6 +683,9 @@ int main(void) {
         }
     }
    
+    //playTune(3);
+    //playTune(4);
+    
     gQIndex = 0;
     
     gLifeCt = 5;
@@ -692,8 +700,6 @@ int main(void) {
     
     updateLcd();
 
-    uint8_t songIndex = 0;
-    
     while (1)
     {
         if (gBtn1Clicked)
@@ -724,7 +730,7 @@ int main(void) {
 
                         if (gStage == gStageCt)
                         {
-                            eeprom_write_byte(EEPROM_ADDR_STAGE, 0);
+                            setStage(0);
                             
                             _delay_ms(1000);
                             
@@ -732,7 +738,7 @@ int main(void) {
                         }
                         else
                         {
-                            eeprom_write_byte(EEPROM_ADDR_STAGE, gStage);
+                            setStage(gStage);
                         
                             showStageMsg(0);
                         }
@@ -789,8 +795,6 @@ int main(void) {
                 _pcd8544_setText(LINE_ANSWER, gBufAnswer, 1);
             }
 
-            songIndex = (songIndex + 1) % gNumOfTunes;
-            
             gBtn2Clicked = 0;
         }
         if (gBtn3Clicked)

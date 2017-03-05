@@ -62,7 +62,7 @@ namespace MathQuizEEPROMWriter
                 {
                     Name = _lines[1 + i * 3].PadRight(10, ' ').Substring(0, 10),
                     Stage = byte.Parse(_lines[1 + i * 3 + 1]),
-                    SecretKey = _lines[1 + i * 3 + 2].PadRight(4, ' ').Substring(0, 4)
+                    SecretKey = _lines[1 + i * 3 + 2].PadRight(10, ' ').Substring(0, 10)
                 });
             }
         }
@@ -160,11 +160,8 @@ namespace MathQuizEEPROMWriter
 
             for (int i = 0; i < _qData.Count; i++)
             {
-                if (i < _qData.Count - 1)
-                {
-                    data[i * 2] = (byte)(curAddress >> 8);
-                    data[i * 2 + 1] = (byte)(curAddress);
-                }
+                data[i * 2] = (byte)(curAddress >> 8);
+                data[i * 2 + 1] = (byte)(curAddress);
 
                 var perUserData = _qData[i].Serialize();
                 curAddress += perUserData.Count;
